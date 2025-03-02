@@ -3,6 +3,8 @@ import './App.css';
 import Header from './Header'
 import Recepes from './Components/Recepes';
 
+import Navbar from './Components/Navbar.js';
+
 
 const App = () => {
   const [names, setNames] = useState("")
@@ -35,6 +37,8 @@ const App = () => {
   }
   return (
     <>
+    
+    <Navbar/>
     
       <Header names={names} inputChange={inputChange} searchRecipe={searchRecipe} />
       <div className="container my-3">

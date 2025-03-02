@@ -1,0 +1,28 @@
+.navbar {
+    background-color: rgba(0, 0, 0, 0.799); /* Set background transparency to 50% */
+  }
+  
+  .navbar-brand {
+    font-family: 'Dancing Script', cursive;
+    font-weight: 700;
+  }
+  
+  .nav-link {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+  }
+  
+  .nav-link.active {
+    font-weight: bold;
+    color: #ffffff; /* Adjust the color as needed */
+  }
+  
+  .nav-link:hover {
+    background-color: #8B4513; /* Highlight background color on hover */
+    color: #ffffff; /* Text color on hover */
+    border-radius: 5px; /* Add border radius for a rounded effect */
+  }
+  .logo{
+    height: 40px;
+    width: 40px;
+  }
