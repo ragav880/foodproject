@@ -1,5 +1,5 @@
 import React  from 'react'
-
+import Navbar from './Components/ui/Navbar'
 
 
 const Header = ({names, inputChange, searchRecipe}) => {
@@ -8,6 +8,7 @@ const Header = ({names, inputChange, searchRecipe}) => {
         <>
             <div className="jumbotron">
                 <div className="tittle">
+                <Navbar/>
                     <h1 className="display-1 text-center">Bite Craft</h1>
                     </div>
                 <div class="input-group w-50 mx-auto">
