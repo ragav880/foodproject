@@ -1,77 +1,89 @@
-const express = require("express");
-const User = require("../models/User");
-
+const express = require('express');
 const router = express.Router();
+const bcrypt = require('bcryptjs');
+const User = require('../models/User');
+const jwt = require('jsonwebtoken');
 
-// Create a new user (POST)
-router.post("/", async (req, res) => {
-  try {
-    const { name, email, password, phone } = req.body;
-    const user = new User({ name, email, password, phone });
-    await user.save();
-    res.status(201).json(user);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+router.post('/register', async (req, res) => {
+    try {
+        console.log('Received registration request:', req.body); // Debug log
+
+        const { name, email, password } = req.body;
+
+        // Validate input
+        if (!name || !email || !password) {
+            return res.status(400).json({ message: 'Please enter all fields' });
+        }
+
+        // Check for existing user
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ message: 'User already exists' });
+        }
+
+        // Create new user
+        const newUser = new User({
+            name,
+            email,
+            password
+        });
+
+        // Hash password
+        const salt = await bcrypt.genSalt(10);
+        newUser.password = await bcrypt.hash(password, salt);
+
+        // Save user
+        await newUser.save();
+        console.log('User registered successfully'); // Debug log
+
+        res.status(201).json({ message: 'Registration successful' });
+    } catch (error) {
+        console.error('Registration error:', error); // Debug log
+        res.status(500).json({ message: 'Server error during registration' });
+    }
 });
 
-// Get all users (GET)
-router.get("/", async (req, res) => {
-  try {
-    const users = await User.find();
-    res.status(200).json(users);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+router.post('/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
 
-// Get a single user by ID (GET)
-router.get("/:id", async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id);
-    if (!user) return res.status(404).json({ message: "User not found" });
-    res.status(200).json(user);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+        // Validate input
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Please enter all fields' });
+        }
 
-// Get a single user by email (GET)
-router.get("/email/:email", async (req, res) => {
-  try {
-    const user = await User.findOne({ email: req.params.email });
-    if (!user) return res.status(404).json({ message: "User not found" });
-    res.status(200).json(user);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+        // Check for user
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({ message: 'User does not exist' });
+        }
 
-// Update a user by ID (PUT)
-router.put("/:id", async (req, res) => {
-  try {
-    const { name, email, password, phone } = req.body;
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      { name, email, password, phone },
-      { new: true } // Return updated user
-    );
-    if (!user) return res.status(404).json({ message: "User not found" });
-    res.status(200).json(user);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+        // Validate password
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Invalid credentials' });
+        }
 
-// Delete a user by ID (DELETE)
-router.delete("/:id", async (req, res) => {
-  try {
-    const user = await User.findByIdAndDelete(req.params.id);
-    if (!user) return res.status(404).json({ message: "User not found" });
-    res.status(200).json({ message: "User deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+        // Create and send token
+        // In your login route handler
+        const token = jwt.sign(
+            { user: { id: user._id } },
+            'bitecraftrecipesecret2024',
+            { expiresIn: '24h' }
+        );
+
+        res.json({
+            token,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email
+            }
+        });
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({ message: 'Server error during login' });
+    }
 });
 
 module.exports = router;

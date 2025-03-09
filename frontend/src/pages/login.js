@@ -1,52 +1,84 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import '../styles/common.css';
+import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const { login } = useAuth();
+  
+  const navigate = useNavigate();
+  const [loginData, setLoginData] = useState({
+    email: '',
+    password: ''
+  });
+  const [error, setError] = useState(null);
 
-  const handleSubmit = (e) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setLoginData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+    setError(null);
 
-    if (!email || !password) {
-      setError("Both fields are required");
-      return;
+    try {
+      const response = await fetch('http://localhost:5000/api/users/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(loginData)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
+      }
+
+      // Store the token in localStorage
+      localStorage.setItem('token', data.token);
+      alert('Login successful!');
+      navigate('/');
+    } catch (err) {
+      setError(err.message);
     }
-    
-    console.log("Logging in with:", { email, password });
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-96">
-        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+    <div className="page-container">
+      <h1 className="page-title">RecipBox </h1>
+      <div className="form-container">
+        <h2 className="text-center mb-4">Login</h2>
+        {error && <div className="alert alert-danger">{error}</div>}
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">Email</label>
+          <div className="mb-3">
+            <label className="form-label">Email</label>
             <input
               type="email"
-              className="w-full p-2 border rounded"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              className="form-control"
+              name="email"
+              value={loginData.email}
+              onChange={handleChange}
               required
             />
           </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
+          <div className="mb-3">
+            <label className="form-label">Password</label>
             <input
               type="password"
-              className="w-full p-2 border rounded"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              className="form-control"
+              name="password"
+              value={loginData.password}
+              onChange={handleChange}
               required
             />
           </div>
-          <button
-            type="submit"
-            className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-          >
+          <button type="submit" className="btn btn-primary w-100">
             Login
           </button>
         </form>
