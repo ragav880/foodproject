@@ -12,11 +12,11 @@ const Receipe = ({ recipe }) => {
   }, []);
 
   const fetchUserFavorites = async () => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token'); 
     if (!token) return;
 
     try {
-      const response = await fetch('http://localhost:5000/api/favorites', {
+      const response = await fetch(`${import.meta.env.REACT_API_URL}/api/favorites`, {
         headers: {
           'x-auth-token': token
         }
@@ -39,7 +39,7 @@ const Receipe = ({ recipe }) => {
     }
 
     try {
-        const response = await fetch('http://localhost:5000/api/favorites/add', {
+        const response = await fetch(`${import.meta.env.REACT_API_URL}/api/favorites/add`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

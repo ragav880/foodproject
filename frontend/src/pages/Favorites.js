@@ -13,7 +13,7 @@ const Favorites = () => {
   const fetchFavorites = async () => {
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch('http://localhost:5000/api/favorites', {
+      const response = await fetch(`${import.meta.env.REACT_API_URL}/api/favorites`, {
         headers: {
           'x-auth-token': token
         }
@@ -49,7 +49,7 @@ const Favorites = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/favorites/remove/${recipeId}`, {
+      const response = await fetch(`${import.meta.env.REACT_API_URL}/api/favorites/remove/${recipeId}`, {
         method: 'DELETE',
         headers: {
           'Accept': 'application/json',
